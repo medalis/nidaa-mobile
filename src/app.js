@@ -13,7 +13,7 @@ const SERV = { women_space: 'Salle femmes', accessible: 'Accès PMR', parking: '
 const st = {
   tab: 'home', sub: null, main: S.get('main', null), favs: S.get('favs', []), m: null, days: null,
   timesView: 'day', evFilter: 'all', notif: S.get('notif', {}), tasbih: S.get('tasbih', 0), heading: null, pos: S.get('pos', null),
-  search: { q: '', list: S.get('lastSearch', []), loading: false }, detail: null, monthOff: 0,
+  search: { q: '', list: S.get('lastSearch', []), loading: false }, detail: null, monthOff: 0, ramPreview: S.get('ramPreview', false), ramOdd: false,
 };
 
 // ---------- icônes ----------
@@ -23,7 +23,7 @@ function pic(k, s, c = '#e9b955') {
   const o = { fajr: `<path d="M22 58a20 20 0 0 1 40 0" fill="${c}"/>${rays(42, 58, 26, 34, -160, -20, 5)}<line x1="8" y1="64" x2="76" y2="64"/>`, shuruq: `<path d="M24 56a18 18 0 0 1 36 0" fill="${c}"/>${rays(42, 56, 24, 34, -180, 0, 7)}<line x1="6" y1="62" x2="78" y2="62"/>`, dhuhr: `<circle cx="42" cy="40" r="15" fill="${c}"/>${rays(42, 40, 22, 32, 0, 315, 8)}`, asr: `<circle cx="42" cy="44" r="14" fill="${c}"/>${rays(42, 44, 21, 30, -180, 0, 7)}`, maghrib: `<path d="M26 58a16 16 0 0 1 32 0" fill="${c}"/>${rays(42, 58, 22, 30, -170, -10, 5)}<line x1="6" y1="64" x2="78" y2="64"/>`, isha: `<path d="M50 14a28 28 0 1 0 22 42a22 22 0 1 1-22-42z" fill="${c}"/>` }[k];
   return `<svg width="${s}" height="${s}" viewBox="0 0 84 84" fill="none" stroke="${c}" stroke-width="3.6" stroke-linecap="round">${o}</svg>`;
 }
-const I = { home: '<path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/>', cal: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>', ev: '<path d="M5 4h14v17l-7-4-7 4z"/>', map: '<path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/>', more: '<circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/>', bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/>', belloff: '<path d="M6 16V11a6 6 0 0 1 9-5.2M18 11v5l2 2H4"/><path d="M10 20a2 2 0 0 0 4 0M3 3l18 18"/>', back: '<path d="M15 5l-7 7 7 7"/>', search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>', loc: '<circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>', star: '<path d="M12 3l2.8 5.8 6.2.9-4.5 4.4 1.1 6.2L12 17.4 6.4 20.3l1.1-6.2L3 9.7l6.2-.9z"/>', route: '<path d="M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/><path d="M6 15V9a4 4 0 0 1 4-4h6M18 9v6a4 4 0 0 1-4 4H8"/>', heart: '<path d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 9c0 6-8 11-8 11z"/>', compass: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>', beads: '<circle cx="12" cy="5" r="2"/><circle cx="17" cy="9" r="2"/><circle cx="17" cy="15" r="2"/><circle cx="7" cy="9" r="2"/><circle cx="7" cy="15" r="2"/><path d="M12 17v4"/>', moon: '<path d="M15 3a9 9 0 1 0 6 13A7 7 0 1 1 15 3z"/>', info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>', phone: '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>' };
+const I = { home: '<path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/>', cal: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>', ev: '<path d="M5 4h14v17l-7-4-7 4z"/>', map: '<path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/>', more: '<circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/>', bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/>', belloff: '<path d="M6 16V11a6 6 0 0 1 9-5.2M18 11v5l2 2H4"/><path d="M10 20a2 2 0 0 0 4 0M3 3l18 18"/>', back: '<path d="M15 5l-7 7 7 7"/>', search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>', loc: '<circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>', star: '<path d="M12 3l2.8 5.8 6.2.9-4.5 4.4 1.1 6.2L12 17.4 6.4 20.3l1.1-6.2L3 9.7l6.2-.9z"/>', route: '<path d="M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/><path d="M6 15V9a4 4 0 0 1 4-4h6M18 9v6a4 4 0 0 1-4 4H8"/>', heart: '<path d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 9c0 6-8 11-8 11z"/>', compass: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>', beads: '<circle cx="12" cy="5" r="2"/><circle cx="17" cy="9" r="2"/><circle cx="17" cy="15" r="2"/><circle cx="7" cy="9" r="2"/><circle cx="7" cy="15" r="2"/><path d="M12 17v4"/>', moon: '<path d="M15 3a9 9 0 1 0 6 13A7 7 0 1 1 15 3z"/>', info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>', phone: '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>', sound: '<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/>' };
 const svg = (k, s = 22, c = 'currentColor') => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${I[k]}</svg>`;
 function moonPhase(d) { const r = 16, k = Math.cos(2 * Math.PI * ((d || 15) - 1) / 29.53), rx = Math.abs(k) * r, wax = (d || 15) <= 15; const p = wax ? `M20 4A16 16 0 0 1 20 36A${rx.toFixed(1)} 16 0 0 ${k > 0 ? 0 : 1} 20 4Z` : `M20 4A16 16 0 0 0 20 36A${rx.toFixed(1)} 16 0 0 ${k > 0 ? 1 : 0} 20 4Z`; return `<svg width="34" height="34" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="#e9b955" opacity=".16"/><path d="${p}" fill="#ffd98a"/></svg>`; }
 
@@ -39,13 +39,28 @@ async function loadMain(force) {
   try { st.m = await API.mosque(st.main.slug, E.addDays(today(), -1)); recompute(); render(); reschedule(); } catch { if (st.m) { st.m.offline = true; render(); } }
 }
 function recompute() { if (!st.m) return; st.days = E.computeDays(st.m, E.addDays(E.ymd(new Date(), tz()), -1), 62); }
-function reschedule() { N.schedule(st.m, st.days && st.days.filter((d) => d.date >= today()), st.notif); }
+function reschedule() { N.schedule(st.m, st.days && st.days.filter((d) => d.date >= today()), st.notif, { imsakMin: imsakMin(), ramadan: (D) => D.hijri && D.hijri.month === 9 }); }
+// ---------- Ramadan ----------
+const hOff = () => (st.m && st.m.prayerConfig && st.m.prayerConfig.hijriOffsetDays) || 0;
+const imsakMin = () => { const r = st.m && st.m.screenSettings && st.m.screenSettings.ramadan; const v = r && Number(r.imsakMin); return Number.isFinite(v) && v >= 0 && v <= 30 ? v : 10; };
+const isRamadan = () => E.hijri(today(), hOff()).month === 9;
+const ramOn = () => isRamadan() || st.ramPreview;
+function ramStart() { const t = today(), h = E.hijri(t, hOff()); if (h.month === 9) return E.addDays(t, 1 - h.day); for (let i = 1; i < 400; i++) { const d = E.addDays(t, i), x = E.hijri(d, hOff()); if (x.month === 9 && x.day === 1) return d; } return null; }
+function ramDays() {
+  const s0 = ramStart(); if (!s0 || !st.m) return [];
+  return E.computeDays(st.m, s0, 30).map((d) => st.days && st.days.find((x) => x.date === d.date) || d).filter((d) => d.hijri.month === 9);
+}
+function tarawih(date) {
+  const L = (st.m && st.m.specialPrayers || []).filter((p) => /tarawi|تراويح/i.test((p.kind || '') + ' ' + (p.label || '')) && p.time).sort((a, b) => a.date.localeCompare(b.date));
+  const ex = L.find((p) => p.date === date); if (ex) return ex.time;
+  const prev = L.filter((p) => p.date <= date).pop(); return prev ? prev.time : null;
+}
 function setMain(m) { st.main = { slug: m.slug, name: m.name, nameAr: m.nameAr || null }; S.set('main', st.main); if (!st.favs.find((f) => f.slug === m.slug)) { st.favs.unshift(st.main); S.set('favs', st.favs); } st.m = null; st.days = null; st.tab = 'home'; st.sub = null; render(); loadMain(true); }
 
 // ---------- écrans ----------
 function tabbar() {
-  const T = [['home', 'Accueil'], ['times', 'Horaires'], ['events', 'Événements'], ['mosques', 'Mosquées'], ['more', 'Plus']];
-  return `<nav class="tab">${T.map(([k, l]) => `<button data-tab="${k}" class="${st.tab === k ? 'on' : ''}">${svg({ home: 'home', times: 'cal', events: 'ev', mosques: 'map', more: 'more' }[k])}<span>${l}</span></button>`).join('')}</nav>`;
+  const T = [['home', 'Accueil'], ['times', 'Horaires'], ramOn() ? ['ramadan', 'Ramadan'] : ['events', 'Événements'], ['mosques', 'Mosquées'], ['more', 'Plus']];
+  return `<nav class="tab">${T.map(([k, l]) => `<button data-tab="${k}" class="${st.tab === k ? 'on' : ''}">${svg({ home: 'home', times: 'cal', events: 'ev', ramadan: 'moon', mosques: 'map', more: 'more' }[k])}<span>${l}</span></button>`).join('')}</nav>`;
 }
 function header(title, back) { return `<header class="hdr">${back ? `<button class="ib" data-act="back">${svg('back')}</button>` : ''}<h1>${esc(title)}</h1></header>`; }
 function onboarding() {
@@ -54,11 +69,13 @@ function onboarding() {
   <div id="res">${resultList(st.search.list)}</div></div>`;
 }
 function searchBox() { return `<div class="sbox">${svg('search', 18, '#a9b8dc')}<input id="q" placeholder="Nom, quartier, ville…" value="${esc(st.search.q)}" autocomplete="off" enterkeyhint="search"></div>`; }
+// Coordonnées par défaut du back-office (centre de Djibouti) : la mosquée n'a pas encore été placée
+const noPos = (m) => m && Math.abs(Number(m.latitude) - 11.588) < 1e-5 && Math.abs(Number(m.longitude) - 43.145) < 1e-5;
 function resultList(list) {
   if (st.search.loading) return '<div class="empty">Recherche…</div>';
   if (st.search.error) return `<div class="empty">${esc(st.search.error)}</div>`;
   if (!list || !list.length) return '<div class="empty">Tapez le nom d\'une mosquée ou utilisez « Autour de moi ».</div>';
-  return list.map((m) => { const fav = st.favs.some((f) => f.slug === m.slug), main = st.main && st.main.slug === m.slug; return `<div class="card mrow" data-act="open" data-slug="${esc(m.slug)}">${LOGO(34)}<div class="f1"><div class="t15">${esc(m.name)}${main ? ' <span class="chip sm">Principale</span>' : ''}</div><div class="mut t12">${esc([m.address || m.city, m.distanceKm != null ? (m.distanceKm < 1 ? Math.round(m.distanceKm * 1000) + ' m' : m.distanceKm.toFixed(1).replace('.', ',') + ' km') : null].filter(Boolean).join(' · '))}</div></div><button class="ib star ${fav ? 'on' : ''}" data-act="fav" data-slug="${esc(m.slug)}" data-name="${esc(m.name)}" data-namear="${esc(m.nameAr || '')}">${svg('star', 22, fav ? '#e9b955' : '#a9b8dc')}</button></div>`; }).join('');
+  return list.map((m) => { const fav = st.favs.some((f) => f.slug === m.slug), main = st.main && st.main.slug === m.slug; return `<div class="card mrow" data-act="open" data-slug="${esc(m.slug)}">${LOGO(34)}<div class="f1"><div class="t15">${esc(m.name)}${main ? ' <span class="chip sm">Principale</span>' : ''}</div><div class="mut t12">${esc([m.address || m.city, noPos(m) ? (m.distanceKm != null ? 'position à préciser' : null) : m.distanceKm != null ? (m.distanceKm < 1 ? Math.round(m.distanceKm * 1000) + ' m' : m.distanceKm.toFixed(1).replace('.', ',') + ' km') : null].filter(Boolean).join(' · '))}</div></div><button class="ib star ${fav ? 'on' : ''}" data-act="fav" data-slug="${esc(m.slug)}" data-name="${esc(m.name)}" data-namear="${esc(m.nameAr || '')}">${svg('star', 22, fav ? '#e9b955' : '#a9b8dc')}</button></div>`; }).join('');
 }
 function loading() { return `<div class="empty" style="padding-top:140px">${LOGO(56)}<div style="margin-top:14px">Chargement des horaires…</div></div>`; }
 function home() {
@@ -70,7 +87,7 @@ function home() {
   const cd = nx ? (nx.phase === 'before' ? nx.adhan - now : nx.iqama - now) : 0;
   let o = `<div class="top"><div class="row g10">${LOGO(36)}<div class="f1 mw0"><div class="t17 b5 ell">${esc(st.m.name)}</div>${st.m.nameAr ? `<div class="ar g t17 ell">${esc(st.m.nameAr)}</div>` : ''}</div><button class="ib ring" data-tab="more" data-sub="notif">${svg('bell', 20, '#e9b955')}</button></div>
   <div class="dline"><span><b class="g">${f.wd}</b> ${f.txt}</span><span class="ar g2">${E.arDigits(h.day)} ${h.ar} ${E.arDigits(h.year)}</span></div>${st.m.offline ? '<div class="off">Hors ligne · horaires enregistrés</div>' : ''}</div>`;
-  o += `<div class="hero"><div class="lbl">${nx && nx.phase === 'iqama' ? 'Iqama dans' : 'Prochaine prière'}</div><div class="cal">${nar}</div><div class="t17">${nfr} · ${nx && nx.phase === 'iqama' ? 'iqama à' : 'adhan à'} <b class="g2">${nx ? (nx.phase === 'iqama' ? nx.day.iqama[nx.key] : nx.day.times[nx.key]) : ''}</b></div><div class="cd" id="cd">${E.fmtDur(cd)}</div><div class="mut t13">${nx ? (jum ? `prière ${nx.day.iqama.dhuhr}` : `iqama ${nx.day.iqama[nx.key]}`) : ''}${st.notif[nx && nx.key] && st.notif[nx.key].on === false ? '' : ' · rappel activé'}</div></div>`;
+  if (ramOn()) o += ramHome(D, now); else o += `<div class="hero"><div class="lbl">${nx && nx.phase === 'iqama' ? 'Iqama dans' : 'Prochaine prière'}</div><div class="cal">${nar}</div><div class="t17">${nfr} · ${nx && nx.phase === 'iqama' ? 'iqama à' : 'adhan à'} <b class="g2">${nx ? (nx.phase === 'iqama' ? nx.day.iqama[nx.key] : nx.day.times[nx.key]) : ''}</b></div><div class="cd" id="cd">${E.fmtDur(cd)}</div><div class="mut t13">${nx ? (jum ? `prière ${nx.day.iqama.dhuhr}` : `iqama ${nx.day.iqama[nx.key]}`) : ''}${st.notif[nx && nx.key] && st.notif[nx.key].on === false ? '' : ' · rappel activé'}</div></div>`;
   o += `<div class="grid3">${E.ORDER.map((k) => { const n = nx && nx.day.date === D.date && nx.key === k, past = !n && E.at(D.date, D.times[k], tz()) < now && !(nx && nx.day.date === D.date && E.ORDER.indexOf(k) > E.ORDER.indexOf(nx.key)); const j = k === 'dhuhr' && D.friday; return `<div class="card mini ${n ? 'now' : ''} ${past ? 'past' : ''}">${pic(k, 22)}<div class="ar t18">${j ? 'الجمعة' : E.NAMES[k].ar}</div><div class="tt t22">${D.times[k]}</div></div>`; }).join('')}</div>`;
   const ev = events().filter((e) => e.date <= E.addDays(today(), 7)).slice(0, 3);
   o += `<div class="row sb mt16"><div class="lbl">Cette semaine</div><button class="lnk" data-tab="events">Tout voir</button></div>${ev.length ? ev.map(evCard).join('') : '<div class="card pad14 mut t13 mt8">Aucun événement cette semaine.</div>'}`;
@@ -143,10 +160,10 @@ function initMap() {
     if (map) { map.remove(); map = null; }
     const c = st.search.center || st.pos || { lat: 11.588, lng: 43.145 };
     map = L.map(el, { zoomControl: false, attributionControl: true }).setView([c.lat, c.lng], 13);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 19, attribution: '© OpenStreetMap · © CARTO' }).addTo(map);
+    { const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16, attribution: '© Esri · © OpenStreetMap' }).addTo(map); let bad = 0; esri.on('tileerror', () => { if (++bad === 4) { map.removeLayer(esri); L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map); } }); }
     const icon = (main) => L.divIcon({ className: 'pin' + (main ? ' main' : ''), html: '<i></i>', iconSize: [30, 30], iconAnchor: [15, 15] });
     const seen = new Set();
-    [...st.search.list, ...st.favs].forEach((m) => { if (seen.has(m.slug) || m.latitude == null) return; seen.add(m.slug); L.marker([m.latitude, m.longitude], { icon: icon(st.main && st.main.slug === m.slug) }).addTo(map).on('click', () => openDetail(m.slug)); });
+    [...st.search.list, ...st.favs].forEach((m) => { if (seen.has(m.slug) || m.latitude == null || noPos(m)) return; seen.add(m.slug); L.marker([m.latitude, m.longitude], { icon: icon(st.main && st.main.slug === m.slug) }).addTo(map).on('click', () => openDetail(m.slug)); });
     if (st.pos) L.circleMarker([st.pos.lat, st.pos.lng], { radius: 7, color: '#fff', weight: 3, fillColor: '#4fb3ff', fillOpacity: 1 }).addTo(map);
   } catch {}
 }
@@ -167,18 +184,82 @@ function detailView() {
   ${(m.services || []).length ? `<div class="lbl mt16">Services</div><div class="chips mt8">${m.services.map((s) => `<span class="pill">${esc(SERV[s] || s)}</span>`).join('')}</div>` : ''}
   ${m.description ? `<div class="lbl mt16">À propos</div><div class="card pad14 mt8 t14">${esc(m.description)}</div>` : ''}`;
 }
+// ---------- Ramadan : accueil, imsakiya ----------
+const LANT = '<svg class="lant" viewBox="0 0 26 60"><path d="M13 0v14" stroke="#e9b955" stroke-width="1.2"/><path d="M6 18h14l-2 22H8z" fill="rgba(233,185,85,.25)" stroke="#e9b955"/><circle cx="13" cy="29" r="4" fill="#ffd98a"/></svg>';
+function ramHome(D, now) {
+  const real = isRamadan(), h = E.hijri(D.date, hOff()), im = imsakMin(), z = tz();
+  const T = st.days.find((d) => d.date === E.addDays(D.date, 1));
+  const imsak = E.addMin(D.times.fajr, -im), aIm = E.at(D.date, imsak, z), aIf = E.at(D.date, D.times.maghrib, z);
+  const tImsak = T ? E.addMin(T.times.fajr, -im) : null, aIm2 = T ? E.at(T.date, tImsak, z) : null;
+  let lab, to, sub;
+  if (now < aIm) { lab = 'Fin du suhoor dans'; to = aIm; sub = `<span class="ar g">الإمساك</span> · ${imsak}`; }
+  else if (now < aIf) { lab = 'Iftar dans'; to = aIf; sub = `<span class="ar g">الإفطار</span> · ${D.times.maghrib}`; }
+  else { lab = 'Imsak demain dans'; to = aIm2; sub = `<span class="ar g">الإمساك</span> · ${tImsak || ''}`; }
+  const pct = Math.max(0, Math.min(1, (now - aIm) / (aIf - aIm))), fasting = now >= aIm && now < aIf;
+  const rs = ramStart(), dleft = real ? null : rs ? Math.round((Date.parse(rs) - Date.parse(D.date)) / 864e5) : null;
+  const ban = real ? `<b class="g2">Ramadan ${h.year} · Jour ${h.day}</b><div class="mut t12">${h.day < 20 ? `Encore ${30 - h.day} jours · Dernière décade dans ${20 - h.day} jour${20 - h.day > 1 ? 's' : ''}` : h.day < 30 ? 'Dernière décade · nuits impaires : 21, 23, 25, 27, 29' : 'Dernier jour'}</div>`
+    : `<b class="g2">Aperçu du mode Ramadan</b><div class="mut t12">${dleft != null ? `Le vrai Ramadan commence dans ${dleft} jours (vers le ${frDate(rs).d} ${MOIS[frDate(rs).m - 1]})` : 'Horaires du jour utilisés pour l\'aperçu'}</div>`;
+  const tw = tarawih(D.date);
+  let o = `<div class="rban mt10"><svg width="34" height="34" viewBox="0 0 40 40"><path d="M26 6a15 15 0 1 0 8 25A13 13 0 0 1 26 6z" fill="#e9b955"/><circle cx="31" cy="11" r="1.6" fill="#ffd98a"/></svg><div class="f1">${ban}</div>${real ? '' : '<button class="pill sm" data-act="rprev">Quitter</button>'}</div>`;
+  o += `<div class="card rhero">${LANT}${LANT.replace('lant', 'lant r')}<div class="lbl" style="color:var(--mut)">${lab}</div><div class="cd" data-to="${to ? to.getTime() : 0}">${to ? E.fmtDur(to - now) : '--:--:--'}</div><div class="t17">${sub}</div>
+  <div class="rbar"><b style="width:${(pct * 100).toFixed(1)}%"></b><i style="left:${(pct * 100).toFixed(1)}%"></i></div><div class="row sb mut t12"><span>Imsak ${imsak}</span><span>${fasting ? Math.round(pct * 100) + ' % du jeûne' : now >= aIf ? 'Jeûne accompli' : 'Avant le jeûne'}</span><span>Iftar ${D.times.maghrib}</span></div></div>`;
+  o += `<div class="grid3"><div class="card mini"><div class="lbl" style="color:var(--mut);letter-spacing:.1em">Imsak</div><div class="tt t22 mt4">${imsak}</div><div class="mut t11">fin du suhoor</div></div><div class="card mini now"><div class="lbl" style="letter-spacing:.1em">Iftar</div><div class="tt t22 mt4">${D.times.maghrib}</div><div class="mut t11">adhan Maghrib</div></div><div class="card mini"><div class="lbl" style="color:var(--mut);letter-spacing:.1em">Tarawih</div><div class="tt t22 mt4">${tw || '—'}</div><div class="mut t11">${tw ? 'à la mosquée' : 'heure non publiée'}</div></div></div>`;
+  o += `<div class="card pad14 mt10 ctr"><div class="lbl" style="color:var(--mut);letter-spacing:.12em">Invocation de la rupture du jeûne</div><div class="ar g2 t20 mt8" style="line-height:1.75">ذَهَبَ الظَّمَأُ وَابْتَلَّتِ الْعُرُوقُ وَثَبَتَ الْأَجْرُ إِنْ شَاءَ اللَّهُ</div><div class="t13 mt4" style="color:#cfd8f0">« La soif est partie, les veines sont humectées, et la récompense est acquise, si Allah le veut. »</div><div class="mut t11 mt4 ls">ABOU DAOUD · 2357</div></div>`;
+  return o;
+}
+function ramadanView() {
+  if (!st.m || !st.days) return loading();
+  const L = ramDays(), t = today(), tw = L.some((d) => tarawih(d.date)), im = imsakMin();
+  if (!L.length) return `${header('Ramadan', st.tab !== 'ramadan')}<div class="empty">Dates du Ramadan indisponibles.</div>`;
+  const y = L[0].hijri.year, rows = st.ramOdd ? L.filter((d) => d.hijri.day >= 21 && d.hijri.day % 2) : L;
+  const WD = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+  let o = st.tab === 'ramadan' ? `<div class="top"><h1 class="h1">Ramadan ${y}</h1>` : `${header('Ramadan ' + y, true)}<div class="top">`;
+  o += `<div class="mut t13">${esc(st.m.name)}${st.m.city ? ' · ' + esc(st.m.city) : ''}${t < L[0].date ? ` · commence le ${frDate(L[0].date).d} ${MOIS[frDate(L[0].date).m - 1]} (date indicative)` : ''}</div>
+  <div class="chips mt10"><button class="pill ${st.ramOdd ? '' : 'on'}" data-act="rodd" data-v="0">Imsakiya</button><button class="pill ${st.ramOdd ? 'on' : ''}" data-act="rodd" data-v="1">Nuits impaires</button><button class="pill" data-act="rshare">⤴ Partager</button></div></div>`;
+  o += `<div class="card tbl"><div class="tr th rtr ${tw ? '' : 'n4'}"><span>Jour</span><span>Imsak</span><span>Fajr</span><span>Iftar</span>${tw ? '<span>Tarawih</span>' : ''}</div>${rows.map((d) => { const g = d.date.split('-').map(Number); return `<div class="tr rtr ${tw ? '' : 'n4'} ${d.date === t ? 'cur' : ''}"><span><b>${d.hijri.day}</b> · ${WD[E.weekday(d.date)]} ${g[2]}${d.hijri.day >= 21 && d.hijri.day % 2 ? ' <i>✦</i>' : ''}</span><span>${E.addMin(d.times.fajr, -im)}</span><span>${d.times.fajr}</span><span class="g2">${d.times.maghrib}</span>${tw ? `<span>${tarawih(d.date) || '—'}</span>` : ''}</div>`; }).join('')}</div>
+  <div class="mut t11 mt10">✦ Nuits impaires de la dernière décade. Imsak = ${im} min avant le Fajr. Dates selon le calendrier Umm al-Qura : la mosquée annonce le début confirmé.${tw ? '' : ' L\'heure des Tarawih apparaîtra quand la mosquée la publiera.'}</div>`;
+  if (st.tab === 'ramadan') o += `<button class="lnk mt12" data-tab="events">Voir les événements de la mosquée ›</button>`;
+  return o;
+}
+function ramText() {
+  const L = ramDays(), im = imsakMin(); if (!L.length) return '';
+  return `🌙 Ramadan ${L[0].hijri.year} — ${st.m.name}\nJour · Imsak · Fajr · Iftar\n` + L.map((d) => `${d.hijri.day} (${d.date.slice(8)}/${d.date.slice(5, 7)}) · ${E.addMin(d.times.fajr, -im)} · ${d.times.fajr} · ${d.times.maghrib}${tarawih(d.date) ? ' · Tarawih ' + tarawih(d.date) : ''}`).join('\n') + '\n\nApplication Nidaa';
+}
+// ---------- Son de l'adhan ----------
+let audio = null, playing = null;
+function playVoice(k) {
+  try { if (audio) { audio.pause(); audio = null; } } catch {}
+  if (playing === k) { playing = null; render(); return; }
+  if (k === 'vibreur') { if (navigator.vibrate) navigator.vibrate([300, 150, 300]); return; }
+  const f = N.SOUNDS[k]; if (!f) return;
+  audio = new Audio(f); playing = k; audio.onended = () => { playing = null; render(); }; audio.play().catch(() => { playing = null; render(); }); render();
+}
+function soundView() {
+  const n = st.notif, g = n.voice || N.defaultVoice(), V = N.VOICES, voiceCount = V.filter((v) => !v.always && v.k !== 'discret').length;
+  const opt = (k, cur) => { const L = [['auto', k === 'fajr' && N.SOUNDS.fajr ? 'Adhan du Fajr' : 'Voix générale'], ...V.map((v) => [v.k, v.n])]; return L.map(([v, l]) => `<option value="${v}" ${cur === v ? 'selected' : ''}>${esc(l)}</option>`).join(''); };
+  let o = `${header("Son de l'adhan", true)}<div class="lbl mt8">Voix</div>`;
+  o += V.map((v) => `<div class="card voice ${g === v.k ? 'on' : ''}"><button class="row g12 f1 tl" data-act="voice" data-v="${v.k}"><span class="rd"></span><div class="f1"><div class="t15 b5">${esc(v.n)}</div><div class="mut t12">${esc(v.d)}</div></div></button>${v.k !== 'defaut' ? `<button class="play" data-act="play" data-v="${v.k}">${playing === v.k ? '❚❚' : '▶'}</button>` : ''}</div>`).join('');
+  if (!voiceCount) o += `<div class="off mt8">Les voix d'adhan (La Mecque, Médine…) apparaîtront dès que leurs enregistrements seront ajoutés à l'application.</div>`;
+  o += `<div class="lbl mt16">Par prière</div><div class="card pad14 mt8">${E.PRAYERS.map((k) => { const s = n[k] || {}; return `<div class="row g10 vrow"><span class="ar g t18" style="width:56px">${E.NAMES[k].ar}</span><span class="f1 t14">${E.NAMES[k].fr}</span>${s.on === false ? '<span class="mut t12">désactivé</span>' : `<select class="vsel" data-k="${k}">${opt(k, s.voice || 'auto')}</select>`}</div>`; }).join('')}</div>`;
+  o += `<div class="lbl mt16">Ramadan</div><div class="card pad14 mt8"><div class="row g10 vrow" style="border:0"><span class="f1 t14">Réveil pour le suhoor</span><select class="vsel" data-k="suhoor">${[[0, 'Désactivé'], [30, '30 min avant l\'imsak'], [45, '45 min avant l\'imsak'], [60, '1 h avant l\'imsak'], [90, '1 h 30 avant l\'imsak']].map(([v, l]) => `<option value="${v}" ${(n.suhoor ?? 45) === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div></div>
+  <div class="mut t11 mt10">Le volume suit celui des notifications du téléphone. Sur certains téléphones, il faut aussi autoriser le son dans Réglages › Notifications › Nidaa.</div>`;
+  return o;
+}
 function more() {
   if (st.sub === 'notif') return notifView();
   if (st.sub === 'qibla') return qiblaView();
   if (st.sub === 'cal') return calView();
   if (st.sub === 'tasbih') return tasbihView();
+  if (st.sub === 'sound') return soundView();
+  if (st.sub === 'ram') return ramadanView();
   const h = st.days && st.days.find((d) => d.date === today());
   let rama = '';
   if (h) { for (let i = 0; i < 400; i++) { const x = E.hijri(E.addDays(today(), i), (st.m && st.m.prayerConfig && st.m.prayerConfig.hijriOffsetDays) || 0); if (x.month === 9 && x.day === 1) { rama = i === 0 ? "C'est le 1er jour de Ramadan" : `Ramadan dans <b class="g2">${i} jours</b>`; break; } } }
-  const T = [['qibla', 'compass', 'Qibla', 'Direction de La Mecque'], ['cal', 'moon', 'Calendrier hégirien', 'Aïd, Ramadan'], ['tasbih', 'beads', 'Tasbih', 'Compteur'], ['notif', 'bell', 'Notifications', 'Adhan et rappels']];
+  const T = [['notif', 'bell', 'Notifications', 'Adhan et rappels'], ['sound', 'sound', "Son de l'adhan", 'Voix, par prière'], ['ram', 'moon', 'Ramadan', 'Imsakiya du mois'], ['qibla', 'compass', 'Qibla', 'Direction de La Mecque'], ['cal', 'moon', 'Calendrier hégirien', 'Aïd, dates clés'], ['tasbih', 'beads', 'Tasbih', 'Compteur']];
   return `<div class="top"><h1 class="h1">Plus</h1></div><div class="grid2">${T.map(([k, i, t, s]) => `<button class="card tile" data-sub="${k}" data-tab="more">${svg(i, 26, '#e9b955')}<div class="t15 b5 mt6">${t}</div><div class="mut t12">${s}</div></button>`).join('')}</div>
   ${st.m && st.m.donationUrl ? `<button class="card don mt12" data-act="don">${svg('heart', 22, '#e9b955')}<div class="f1"><div class="t15 b5">Faire un don</div><div class="mut t12">${esc(st.m.name)}</div></div><span class="g">›</span></button>` : ''}
-  ${rama ? `<div class="card pad14 mt12 row g12" style="border-color:rgba(127,227,187,.4)"><div class="ar t24" style="color:#7fe3bb">رمضان</div><div class="t14">${rama}</div></div>` : ''}
+  ${rama ? `<button class="card pad14 mt12 row g12 tl" data-tab="more" data-sub="ram" style="border-color:rgba(127,227,187,.4)"><div class="ar t24" style="color:#7fe3bb">رمضان</div><div class="t14 f1">${rama}</div><span class="g">›</span></button>` : ''}
+  ${isRamadan() ? '' : `<div class="card pad14 mt12"><button class="row g10 w100" data-act="rprev"><div class="f1 tl"><div class="t15 b5">Aperçu du mode Ramadan</div><div class="mut t12">Pour découvrir l'écran avant le mois</div></div>${sw(st.ramPreview)}</button></div>`}
   <div class="card pad14 mt12 row g12">${LOGO(30)}<div class="f1"><div class="t14 b5">Nidaa</div><div class="mut t12">Les horaires réels de votre mosquée. Sans publicité.</div></div><div class="mut t12">v1.0</div></div>`;
 }
 function sw(on) { return `<span class="sw ${on ? 'on' : ''}"><i></i></span>`; }
@@ -212,7 +293,7 @@ function tasbihView() {
 function render() {
   const app = $('#app');
   if (!st.main) { app.className = 'onbw'; app.innerHTML = onboarding(); bindSearch(); return; }
-  const V = { home, times, events: eventsView, mosques: mosquesView, more }[st.tab] || home;
+  const V = { home, times, events: eventsView, ramadan: ramadanView, mosques: mosquesView, more }[st.tab] || home;
   app.className = '';
   app.innerHTML = `<main class="scr" id="scr">${V()}</main>${tabbar()}`;
   if (st.tab === 'mosques' && st.sub !== 'detail') { bindSearch(); setTimeout(initMap, 0); }
@@ -224,7 +305,7 @@ function bindSearch() {
 }
 async function doSearch(args) {
   st.search.loading = true; st.search.error = null; st.search.near = !!args.lat; updRes();
-  try { st.search.list = await API.search(args); if (args.lat) st.search.center = { lat: args.lat, lng: args.lng }; }
+  try { st.search.list = await API.search(args); if (args.lat) st.search.list.sort((x, y) => noPos(x) - noPos(y)); if (args.lat) st.search.center = { lat: args.lat, lng: args.lng }; }
   catch { st.search.error = 'Pas de connexion. Réessayez dans un instant.'; }
   st.search.loading = false; updRes(); if (st.tab === 'mosques') initMap();
 }
@@ -250,6 +331,17 @@ document.addEventListener('click', async (ev) => {
   if (a === 'kahf') { st.notif.kahf = st.notif.kahf === false; S.set('notif', st.notif); render(); reschedule(); return; }
   if (a === 'tap') { st.tasbih = st.tasbih >= 100 ? 0 : st.tasbih + 1; S.set('tasbih', st.tasbih); if (navigator.vibrate) navigator.vibrate([33, 66, 100].includes(st.tasbih) ? 120 : 12); render(); return; }
   if (a === 'treset') { st.tasbih = 0; S.set('tasbih', 0); render(); return; }
+  if (a === 'rprev') { st.ramPreview = !st.ramPreview; S.set('ramPreview', st.ramPreview); if (!ramOn() && st.tab === 'ramadan') st.tab = 'home'; render(); return; }
+  if (a === 'rodd') { st.ramOdd = t.dataset.v === '1'; render(); return; }
+  if (a === 'rshare') { const txt = ramText(); if (navigator.share) { navigator.share({ text: txt }).catch(() => {}); } else N.open('https://wa.me/?text=' + encodeURIComponent(txt)); return; }
+  if (a === 'voice') { st.notif.voice = t.dataset.v; S.set('notif', st.notif); render(); reschedule(); return; }
+  if (a === 'play') { playVoice(t.dataset.v); return; }
+});
+document.addEventListener('change', (ev) => {
+  const t = ev.target; if (!t.classList || !t.classList.contains('vsel')) return;
+  const k = t.dataset.k;
+  if (k === 'suhoor') st.notif.suhoor = +t.value; else { const s = st.notif[k] || {}; s.voice = t.value; st.notif[k] = s; }
+  S.set('notif', st.notif); reschedule();
 });
 let compassOn = false;
 function startCompass() {
@@ -264,6 +356,7 @@ setInterval(() => {
   if (!st.days || !st.m) return;
   const now = new Date(), nx = E.nextPrayer(st.days, now, tz()), cd = $('#cd');
   if (cd && nx) cd.textContent = E.fmtDur(nx.phase === 'before' ? nx.adhan - now : nx.iqama - now);
+  document.querySelectorAll('[data-to]').forEach((el) => { const v = +el.dataset.to; if (v) el.textContent = E.fmtDur(v - now); });
   const m = now.getMinutes();
   if (m !== lastMin) { if (lastMin !== -1 && (st.tab === 'home' || st.tab === 'times') && !st.sub) { const sc = $('#scr'), y = sc ? sc.scrollTop : 0; if (!st.days.some((d) => d.date === E.addDays(today(), 1))) recompute(); render(); const s2 = $('#scr'); if (s2) s2.scrollTop = y; } lastMin = m; }
 }, 1000);
