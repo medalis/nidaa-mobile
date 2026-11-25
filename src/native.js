@@ -1,5 +1,5 @@
 // Fonctions natives (notifications, position, liens) — sans effet dans un navigateur de test
-import { Capacitor } from '@capacitor/core';
+import { Capacitor, registerPlugin } from '@capacitor/core';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Geolocation } from '@capacitor/geolocation';
 import { Browser } from '@capacitor/browser';
@@ -90,5 +90,9 @@ export async function schedule(mosque, days, settings, opts = {}) {
     return { ok: true, count: list.length };
   } catch (e) { return { ok: false, error: String(e) }; }
 }
+
+// Widgets de l'écran d'accueil (Android)
+const Widget = registerPlugin('NidaaWidget');
+export async function widgets(payload) { if (!native) return; try { await Widget.update({ data: JSON.stringify(payload) }); } catch {} }
 
 if (native) { try { StatusBar.setStyle({ style: Style.Dark }); StatusBar.setBackgroundColor({ color: '#060f29' }); } catch {} }

@@ -39,7 +39,13 @@ async function loadMain(force) {
   try { st.m = await API.mosque(st.main.slug, E.addDays(today(), -1)); recompute(); render(); reschedule(); } catch { if (st.m) { st.m.offline = true; render(); } }
 }
 function recompute() { if (!st.m) return; st.days = E.computeDays(st.m, E.addDays(E.ymd(new Date(), tz()), -1), 62); }
-function reschedule() { N.schedule(st.m, st.days && st.days.filter((d) => d.date >= today()), st.notif, { imsakMin: imsakMin(), ramadan: (D) => D.hijri && D.hijri.month === 9 }); }
+function pushWidgets() {
+  if (!st.m || !st.days) return;
+  const im = imsakMin(), t0 = E.addDays(today(), -1);
+  const days = st.days.filter((d) => d.date >= t0).slice(0, 40).map((d) => ({ date: d.date, t: d.times, iq: d.iqama, fri: !!d.friday, hd: d.hijri.day, hy: d.hijri.year, hAr: d.hijri.ar, ram: d.hijri.month === 9 || st.ramPreview, imsak: E.addMin(d.times.fajr, -im), tw: tarawih(d.date) }));
+  N.widgets({ name: st.m.name, nameAr: st.m.nameAr || '', tz: tz(), days });
+}
+function reschedule() { pushWidgets(); N.schedule(st.m, st.days && st.days.filter((d) => d.date >= today()), st.notif, { imsakMin: imsakMin(), ramadan: (D) => D.hijri && D.hijri.month === 9 }); }
 // ---------- Ramadan ----------
 const hOff = () => (st.m && st.m.prayerConfig && st.m.prayerConfig.hijriOffsetDays) || 0;
 const imsakMin = () => { const r = st.m && st.m.screenSettings && st.m.screenSettings.ramadan; const v = r && Number(r.imsakMin); return Number.isFinite(v) && v >= 0 && v <= 30 ? v : 10; };
@@ -185,7 +191,7 @@ function detailView() {
   ${m.description ? `<div class="lbl mt16">À propos</div><div class="card pad14 mt8 t14">${esc(m.description)}</div>` : ''}`;
 }
 // ---------- Ramadan : accueil, imsakiya ----------
-const LANT = '<svg class="lant" viewBox="0 0 26 60"><path d="M13 0v14" stroke="#e9b955" stroke-width="1.2"/><path d="M6 18h14l-2 22H8z" fill="rgba(233,185,85,.25)" stroke="#e9b955"/><circle cx="13" cy="29" r="4" fill="#ffd98a"/></svg>';
+const LANT = '<svg class="lant" width="24" height="56" viewBox="0 0 26 60"><path d="M13 0v14" stroke="#e9b955" stroke-width="1.2"/><path d="M6 18h14l-2 22H8z" fill="rgba(233,185,85,.25)" stroke="#e9b955"/><circle cx="13" cy="29" r="4" fill="#ffd98a"/></svg>';
 function ramHome(D, now) {
   const real = isRamadan(), h = E.hijri(D.date, hOff()), im = imsakMin(), z = tz();
   const T = st.days.find((d) => d.date === E.addDays(D.date, 1));
@@ -331,7 +337,7 @@ document.addEventListener('click', async (ev) => {
   if (a === 'kahf') { st.notif.kahf = st.notif.kahf === false; S.set('notif', st.notif); render(); reschedule(); return; }
   if (a === 'tap') { st.tasbih = st.tasbih >= 100 ? 0 : st.tasbih + 1; S.set('tasbih', st.tasbih); if (navigator.vibrate) navigator.vibrate([33, 66, 100].includes(st.tasbih) ? 120 : 12); render(); return; }
   if (a === 'treset') { st.tasbih = 0; S.set('tasbih', 0); render(); return; }
-  if (a === 'rprev') { st.ramPreview = !st.ramPreview; S.set('ramPreview', st.ramPreview); if (!ramOn() && st.tab === 'ramadan') st.tab = 'home'; render(); return; }
+  if (a === 'rprev') { st.ramPreview = !st.ramPreview; S.set('ramPreview', st.ramPreview); pushWidgets(); if (!ramOn() && st.tab === 'ramadan') st.tab = 'home'; render(); return; }
   if (a === 'rodd') { st.ramOdd = t.dataset.v === '1'; render(); return; }
   if (a === 'rshare') { const txt = ramText(); if (navigator.share) { navigator.share({ text: txt }).catch(() => {}); } else N.open('https://wa.me/?text=' + encodeURIComponent(txt)); return; }
   if (a === 'voice') { st.notif.voice = t.dataset.v; S.set('notif', st.notif); render(); reschedule(); return; }
@@ -365,6 +371,8 @@ N.onResume(() => loadMain(true));
 N.onBack(() => { if (st.sub) { st.sub = null; st.detail = null; render(); } else if (st.tab !== 'home') { st.tab = 'home'; render(); } });
 let ver = null;
 setInterval(async () => { if (!st.main || document.hidden) return; const v = await API.version(st.main.slug); if (v != null && ver != null && v !== ver) loadMain(true); if (v != null) ver = v; }, 120000);
+// Styles du mode Ramadan et du son intégrés ici : l'écran reste correct même si app.css n'est pas à jour
+(() => { try { const el = document.createElement('style'); el.textContent = '.rban{display:flex;align-items:center;gap:10px;background:linear-gradient(90deg,rgba(233,185,85,.22),rgba(233,185,85,.06));border:1px solid rgba(233,185,85,.35);border-radius:16px;padding:9px 12px;font-size:14px}.rhero{margin-top:12px;text-align:center;padding:18px 16px 14px;position:relative;overflow:hidden;border-radius:26px}.rhero .lant{position:absolute;top:-4px;left:20px;width:24px}.rhero .lant.r{left:auto;right:20px;top:4px}.rhero .cd{margin-top:2px}.rhero .ar{font-size:19px}.rbar{height:8px;border-radius:5px;background:rgba(255,255,255,.1);margin:12px 4px 6px;position:relative}.rbar b{position:absolute;left:0;top:0;bottom:0;border-radius:5px;background:linear-gradient(90deg,#86b2ff,#e9b955)}.rbar i{position:absolute;top:-5px;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:#ffd98a;box-shadow:0 0 12px #e9b955}.rtr{grid-template-columns:96px repeat(4,1fr)}.rtr.n4{grid-template-columns:110px repeat(3,1fr)}.rtr span:first-child{white-space:nowrap}.voice{display:flex;align-items:center;gap:8px;padding:9px 12px;margin-top:8px}.voice.on{border-color:var(--g);background:linear-gradient(160deg,rgba(233,185,85,.18),rgba(14,30,72,.5))}.rd{width:20px;height:20px;border-radius:50%;border:2px solid #6c7ca8;flex:none}.voice.on .rd{border-color:var(--g);box-shadow:inset 0 0 0 4px #0b1c46;background:var(--g)}.play{width:34px;height:34px;border-radius:50%;background:rgba(233,185,85,.15);border:1px solid rgba(233,185,85,.4);display:flex;align-items:center;justify-content:center;color:var(--g);font-size:12px;flex:none}.vrow{padding:8px 0;border-bottom:1px solid var(--l2)}.vrow:last-child{border:0}.vsel{background:rgba(6,14,36,.8);color:var(--g2);border:1px solid var(--ln);border-radius:10px;padding:6px 8px;font:inherit;font-size:12.5px;max-width:170px}'; document.head.appendChild(el); } catch {} })();
 window.__nidaa = st;
 render(); loadMain(true);
 if (st.main) API.version(st.main.slug).then((v) => { ver = v; });
