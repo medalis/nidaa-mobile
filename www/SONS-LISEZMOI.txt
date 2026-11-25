@@ -1,0 +1,14 @@
+Sons de l'adhan — Nidaa
+=======================
+Déposez les enregistrements (MP3) dans le dossier www, à côté de ce fichier, avec EXACTEMENT ces noms :
+
+  makkah.mp3   → voix « La Mecque »
+  madinah.mp3  → voix « Médine »
+  fajr.mp3     → adhan du Fajr (avec « الصلاة خير من النوم »)
+  locale.mp3   → voix « Mosquée locale » (votre muezzin, avec son accord)
+  court.mp3    → version courte (« Allahu akbar », 10 à 20 secondes)
+
+Chaque fichier est facultatif : l'application ne propose que les voix présentes.
+discret.wav et silence.wav sont fournis (ne pas supprimer).
+Utilisez uniquement des enregistrements libres de droits ou dont vous avez l'autorisation.
+Taille conseillée : moins de 3 Mo par fichier (MP3 64 à 96 kbit/s, mono).
