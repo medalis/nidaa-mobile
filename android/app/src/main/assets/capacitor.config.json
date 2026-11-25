@@ -1,0 +1,20 @@
+{
+	"appId": "dj.nidaa.app",
+	"appName": "Nidaa",
+	"webDir": "www",
+	"android": {
+		"backgroundColor": "#060f29",
+		"adjustMarginsForEdgeToEdge": "force"
+	},
+	"plugins": {
+		"LocalNotifications": {
+			"smallIcon": "ic_stat_nidaa",
+			"iconColor": "#E9B955"
+		},
+		"SplashScreen": {
+			"launchShowDuration": 800,
+			"backgroundColor": "#060f29",
+			"showSpinner": false
+		}
+	}
+}
