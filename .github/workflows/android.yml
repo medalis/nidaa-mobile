@@ -24,8 +24,6 @@ jobs:
         run: |
           npm ci
           node build.mjs
-          npx cap add android
-          node scripts/prepare-android.mjs
           npx cap sync android
           chmod +x android/gradlew
       - name: APK de test
@@ -39,26 +37,9 @@ jobs:
           NIDAA_KEYSTORE_PASSWORD: ${{ secrets.NIDAA_KEYSTORE_PASSWORD }}
           NIDAA_KEY_ALIAS: ${{ secrets.NIDAA_KEY_ALIAS }}
           NIDAA_KEY_PASSWORD: ${{ secrets.NIDAA_KEY_PASSWORD }}
-        with:
         run: |
           echo "${{ secrets.NIDAA_KEYSTORE_BASE64 }}" | base64 -d > $RUNNER_TEMP/nidaa.jks
           export NIDAA_KEYSTORE=$RUNNER_TEMP/nidaa.jks
           cd android
           ./gradlew --no-daemon bundleRelease
-          cp app/build/outputs/bundle/release/app-release.aab ../nidaa-mobile-playstore.aab
-      - uses: actions/upload-artifact@v4
-          name: nidaa-mobile
-          path: |
-            nidaa-mobile-test.apk
-            nidaa-mobile-playstore.aab
-          if-no-files-found: ignore
-      - name: Publier dans Releases
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: mobile-${{ github.run_number }}
-          name: Nidaa Mobile ${{ github.run_number }}
-          files: |
-            nidaa-mobile-test.apk
-            nidaa-mobile-playstore.aab
-          fail_on_unmatched_files: false
-          body: "Application mobile Nidaa. nidaa-mobile-test.apk : à installer directement sur un téléphone Android pour tester. nidaa-mobile-playstore.aab : fichier à envoyer sur Google Play (présent seulement si la clé de signature est configurée)."
+          cp app/build/outputs/bundle/release/app-release.aab
