@@ -1,0 +1,64 @@
+name: Nidaa Mobile — Android
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: write
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    env:
+      VERSION_CODE: ${{ github.run_number }}
+      HAS_KEY: ${{ secrets.NIDAA_KEYSTORE_BASE64 != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "21" }
+      - name: Préparer l'application
+        run: |
+          npm ci
+          node build.mjs
+          npx cap add android
+          node scripts/prepare-android.mjs
+          npx cap sync android
+          chmod +x android/gradlew
+      - name: APK de test
+        run: |
+          cd android
+          ./gradlew --no-daemon assembleDebug
+          cp app/build/outputs/apk/debug/app-debug.apk ../nidaa-mobile-test.apk
+      - name: Version Play Store (si la clé de signature est configurée)
+        if: ${{ env.HAS_KEY == 'true' }}
+        env:
+          NIDAA_KEYSTORE_PASSWORD: ${{ secrets.NIDAA_KEYSTORE_PASSWORD }}
+          NIDAA_KEY_ALIAS: ${{ secrets.NIDAA_KEY_ALIAS }}
+          NIDAA_KEY_PASSWORD: ${{ secrets.NIDAA_KEY_PASSWORD }}
+        with:
+        run: |
+          echo "${{ secrets.NIDAA_KEYSTORE_BASE64 }}" | base64 -d > $RUNNER_TEMP/nidaa.jks
+          export NIDAA_KEYSTORE=$RUNNER_TEMP/nidaa.jks
+          cd android
+          ./gradlew --no-daemon bundleRelease
+          cp app/build/outputs/bundle/release/app-release.aab ../nidaa-mobile-playstore.aab
+      - uses: actions/upload-artifact@v4
+          name: nidaa-mobile
+          path: |
+            nidaa-mobile-test.apk
+            nidaa-mobile-playstore.aab
+          if-no-files-found: ignore
+      - name: Publier dans Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: mobile-${{ github.run_number }}
+          name: Nidaa Mobile ${{ github.run_number }}
+          files: |
+            nidaa-mobile-test.apk
+            nidaa-mobile-playstore.aab
+          fail_on_unmatched_files: false
+          body: "Application mobile Nidaa. nidaa-mobile-test.apk : à installer directement sur un téléphone Android pour tester. nidaa-mobile-playstore.aab : fichier à envoyer sur Google Play (présent seulement si la clé de signature est configurée)."
